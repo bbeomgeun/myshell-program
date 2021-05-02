@@ -7,6 +7,12 @@
 #include <sys/wait.h>
 #define MAX 100
 
+void help_description(){
+	printf("<DESCRIPTION\n");
+	printf("csh is a command language interpreter incorporating a history mechanism (see Sx History substitutions ) , job control facilities (see Sx Jobs ) , interactive file name and user name completion (see Sx File name completion ) , and a C-like syntax. It is used both as an interactive login shell and a shell script command processor\n");
+	return ;
+}
+
 int strParsing(char * list[], char * command, const char * delimeter){
 	int cnt = 0;
 	char * result;
@@ -30,19 +36,20 @@ int main() {
 		char * delimeter = " ";
 		char * parsing[MAX];
 
-		if(strncmp(str, "quit", 4) == 0){
+		int count = strParsing(parsing, str, " ");
+
+		if(strcmp(parsing[0], "quit") == 0){
 			printf("myshell developed by \"박범근(12161104)\"\n");
 			break;
 		}
-		else if(strncmp(str, "history", 7) == 0){
+		else if(strcmp(parsing[0], "history") == 0){
 			printf("history print\n");
 		}
-		else if(strncmp(str, "help", 4) == 0) {
-			printf("DESCRIPTION~~\n");
+		else if(strcmp(parsing[0], "help") == 0) {
+			help_description();
 		}
 		else{
-			int count = strParsing(parsing, str, " ");
-			
+						
 			pid_t pid;
 
 			switch(pid = fork()){
