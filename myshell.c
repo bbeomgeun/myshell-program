@@ -1,6 +1,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include <stdbool.h>
 #include <unistd.h>
 #include <sys/types.h>
@@ -8,9 +9,32 @@
 #define MAX 100
 
 void help_description(){
-	printf("<DESCRIPTION\n");
+	printf("<DESCRIPTION>\n");
 	printf("csh is a command language interpreter incorporating a history mechanism (see Sx History substitutions ) , job control facilities (see Sx Jobs ) , interactive file name and user name completion (see Sx File name completion ) , and a C-like syntax. It is used both as an interactive login shell and a shell script command processor\n");
 	return ;
+}
+
+void history(char * list[], int cnt){
+	int now = cnt % 10;
+	if(now == 0)
+		now = 10;
+	int real = cnt-9;
+	
+	printf("----history 10----\n");
+ 
+	if(cnt <= 10){
+		for(int i = 1 ; i <= now ; i++){
+			printf("%d     %s\n",i, list[i]);
+		}
+	}
+	else{
+		for(int i = now+1 ; i <= 10 ; i++){
+			printf("%d     %s\n",real++, list[i]);
+		}	
+		for(int i = 1 ; i <= now ; i++){
+			printf("%d     %s\n",real++, list[i]);
+		}
+	}
 }
 
 int strParsing(char * list[], char * command, const char * delimeter){
@@ -27,12 +51,25 @@ int strParsing(char * list[], char * command, const char * delimeter){
 
 int main() {
 	char str[MAX];
-
+	char * history_list[11];
+	char * hisstr;
+	int his_cnt = 1;
 	while(1){
 		printf("12161104_shell$" );
 		fgets(str, MAX-1, stdin); // fgets는 끝에 null 저장(한칸비워야함)
 		str[strlen(str)-1]='\0';
+		
+		hisstr = (char*)malloc(sizeof(char*)*(strlen(str)+1));
+		strcpy(hisstr, str);
+		int his_now = his_cnt % 10;
+		if(his_now == 0)
+			his_now = 10;
+		if(his_cnt > 10)
+			free(history_list[his_now]);
+		history_list[his_now] = hisstr;
+		his_cnt++;
 
+		
 		char * delimeter = " ";
 		char * parsing[MAX];
 
@@ -43,18 +80,17 @@ int main() {
 			break;
 		}
 		else if(strcmp(parsing[0], "history") == 0){
-			printf("history print\n");
+			history(history_list, his_cnt-1);
 		}
 		else if(strcmp(parsing[0], "help") == 0) {
 			help_description();
 		}
-		else{
-						
+		else{						
 			pid_t pid;
 
 			switch(pid = fork()){
 				case -1 :
-					printf("fork failed");
+					printf("fork failed");	
 					break;
 				case 0:
 					execvp (parsing[0], parsing);
@@ -63,7 +99,7 @@ int main() {
 					wait((int *)0);
 					printf("ls ompleted\n");
 			}
-		}	
+		}
 	}
 }
 
