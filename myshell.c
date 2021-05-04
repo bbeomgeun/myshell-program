@@ -54,11 +54,13 @@ int main() {
 	char * history_list[11];
 	char * hisstr;
 	int his_cnt = 1;
+	int backgroundFlag;
+	
 	while(1){
 		printf("12161104_shell$" );
 		fgets(str, MAX-1, stdin); // fgets는 끝에 null 저장(한칸비워야함)
-		str[strlen(str)-1]='\0';
-		
+	
+		// 입력값 history에 저장하기
 		hisstr = (char*)malloc(sizeof(char*)*(strlen(str)+1));
 		strcpy(hisstr, str);
 		int his_now = his_cnt % 10;
@@ -69,7 +71,16 @@ int main() {
 		history_list[his_now] = hisstr;
 		his_cnt++;
 
-		
+		// 백그라운드 찾기
+		backgroundFlag = false;
+		if (str[strlen(str)-2] == '&'){
+			str[strlen(str)-2]='\0';
+			backgroundFlag = true;
+		}
+		else
+			str[strlen(str)-1] = '\0';
+	
+		// 문자열 파싱
 		char * delimeter = " ";
 		char * parsing[MAX];
 
@@ -85,19 +96,25 @@ int main() {
 		else if(strcmp(parsing[0], "help") == 0) {
 			help_description();
 		}
-		else{						
-			pid_t pid;
-
-			switch(pid = fork()){
-				case -1 :
-					printf("fork failed");	
-					break;
-				case 0:
-					execvp (parsing[0], parsing);
-					break;
-				default:
-					wait((int *)0);
-					printf("ls ompleted\n");
+		else{	
+			int status;			
+			pid_t pid = fork();
+			if(pid == -1){
+				printf("fork failed");	
+			}
+			else if(pid == 0){
+				execvp(parsing[0], parsing);
+			}
+			else{
+				if(!backgroundFlag){
+					printf("대기");
+					pid = wait(&status);
+					printf("부모실행");
+				}
+				else{
+					waitpid(pid, &status, WNOHANG);
+					printf("백그라운드");
+				}
 			}
 		}
 	}
