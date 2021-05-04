@@ -111,7 +111,8 @@ void foregroundExecute(char* command[]) {
 		exit(0);
 	}
 	else {
-	wait(0);
+	//wait(0);
+	sleep(1);
 	}
 }
 
