@@ -111,8 +111,8 @@ void foregroundExecute(char* command[]) {
 		exit(0);
 	}
 	else {
-	//wait(0);
-	sleep(1);
+	wait(0);
+	//sleep(1);
 	}
 }
 
@@ -121,6 +121,9 @@ int main() {
 	while (1) {
 		printf("12161104_shell$");
 		fgets(str, MAX_CMD - 1, stdin); // fgets는 끝에 null 저장(한칸비워야함)
+		
+		//zombie 프로세스 받아주기
+		waitpid(-1, NULL, WNOHANG);
 
 		// 입력값 history에 저장하기
 		insertHistory(str);
